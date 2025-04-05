@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +29,18 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# .env 파일 로드
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+KLIP_PREPARE_URL = os.getenv("KLIP_PREPARE_URL")
+KLIP_REQUEST_URL = os.getenv("KLIP_REQUEST_URL")
+KLIP_RESULT_URL = os.getenv("KLIP_RESULT_URL")
+
+KAIA_ADDRESS = os.getenv("KAIA_ADDRESS")
+NFT_CONTRACT_ADDRESS = os.getenv("NFT_CONTRACT_ADDRESS")
+
+BAPP_NAME = os.getenv("VRNFT")
 
 # Application definition
 

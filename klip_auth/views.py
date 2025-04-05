@@ -1,10 +1,10 @@
 import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
-KLIP_PREPARE_URL = 'https://a2a-api.klipwallet.com/v2/a2a/prepare'
-KLIP_REQUEST_URL = 'https://klipwallet.com?target=/a2a?request_key='
-KLIP_RESULT_URL = 'https://a2a-api.klipwallet.com/v2/a2a/result?request_key='
+KLIP_PREPARE_URL = settings.KLIP_PREPARE_URL
+KLIP_REQUEST_URL = settings.KLIP_REQUEST_URL
 
 # Klip API 요청 (request_key 생성)
 @csrf_exempt
@@ -36,7 +36,7 @@ def klip_login_request(request, request_key):
 def klip_login_result(request, request_key):
     if request.method == "GET":
         headers = {"Content-Type": "application/json"}
-        response = requests.get(KLIP_RESULT_URL + request_key, headers=headers)
+        response = requests.get(KLIP_REQUEST_URL + request_key, headers=headers)
         
         if response.status_code == 200:
             data = response.json()

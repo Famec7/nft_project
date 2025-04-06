@@ -14,7 +14,7 @@ KLIP_REQUEST_URL = settings.KLIP_REQUEST_URL
 NFT_CONTRACT_ADDRESS = settings.NFT_CONTRACT_ADDRESS
 
 # 스마트 컨트랙트 실행
-def execute_contract(txTo, functionJSON, functionParams, value, params):
+def execute_contract(txTo, functionJSON, value, params):
     payload = {
         "bapp": {"name": BAPP_NAME},
         "type": "execute_contract",
@@ -40,7 +40,7 @@ def mint_nft(toAddress, tokenID, uri):
     functionParams = [toAddress, tokenID, uri]
     value = "0"
     
-    return execute_contract(NFT_CONTRACT_ADDRESS, functionJSON, functionParams, value, functionParams)
+    return execute_contract(NFT_CONTRACT_ADDRESS, functionJSON, value, functionParams)
 
 # NFT 마켓 등록 API
 def list_nft(tokenID, price):
@@ -48,7 +48,7 @@ def list_nft(tokenID, price):
     functionParams = [tokenID, price]
     value = "0"
     
-    return execute_contract(NFT_CONTRACT_ADDRESS, functionJSON, functionParams, value, functionParams)
+    return execute_contract(NFT_CONTRACT_ADDRESS, functionJSON, value, functionParams)
 
 # NFT 구매 API
 def buy_nft(fromAddress, tokenID):
@@ -56,4 +56,4 @@ def buy_nft(fromAddress, tokenID):
     functionParams = [fromAddress, tokenID]
     value = "0"
     
-    return execute_contract(NFT_CONTRACT_ADDRESS, functionJSON, functionParams, value, functionParams)
+    return execute_contract(NFT_CONTRACT_ADDRESS, functionJSON, value, functionParams)

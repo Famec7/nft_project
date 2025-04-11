@@ -19,5 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api/klip/", include("klip_auth.urls"))
+    path("api/klip/", include("klip_auth.urls")),
+    path("api/nft/", include("nft.urls"))
 ]

@@ -6,39 +6,38 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract MyNFTMarketplace is ERC721URIStorage, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
-
     struct MarketItem {
         address seller;
         uint256 price;
-        bool isListed;
     }
 
     mapping(uint256 => MarketItem) public marketItems;
 
-    constructor(address initialOwner) ERC721("MyNFT", "MNFT") Ownable(initialOwner) {}
+    constructor(address initialOwner) ERC721("ItemMarket", "Item") Ownable(initialOwner) {}
 
     /// @notice NFT 민팅 (판매는 X)
-    function mintWithTokenURI(address to, string memory tokenURI) public onlyOwner returns (uint256) {
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
+    function mintWithTokenURI(address to, uint256 tokenID, string memory tokenURI) public returns (uint256) {
+        _mint(to, tokenID);
+        _setTokenURI(tokenID, tokenURI);
 
-        _mint(to, newTokenId);
-        _setTokenURI(newTokenId, tokenURI);
-
-        return newTokenId;
+        return tokenID;
     }
 
     /// @notice NFT 마켓에 판매 등록
-    function listItem(uint256 tokenId, uint256 price) public {
-        require(ownerOf(tokenId) == msg.sender, "Not the token owner");
+    function listItem(uint256 tokenId, uint256 price, string memory tokenURI) public {
         require(price > 0, "Price must be greater than 0");
+
+        if (!_tokenExists(tokenId)) {
+            mintWithTokenURI(owner(), tokenId, tokenURI);
+        }
+        else {
+            require(ownerOf(tokenId) == msg.sender, "Not the token owner");
+            _transfer(msg.sender, owner(), tokenId);
+        }
 
         marketItems[tokenId] = MarketItem({
             seller: msg.sender,
-            price: price,
-            isListed: true
+            price: price
         });
     }
 
@@ -46,17 +45,28 @@ contract MyNFTMarketplace is ERC721URIStorage, Ownable {
     function buy(uint256 tokenId) public payable {
         MarketItem memory item = marketItems[tokenId];
 
-        require(item.isListed, "Item not listed for sale");
         require(msg.value >= item.price, "Not enough ETH sent");
 
         payable(item.seller).transfer(item.price);
-        _transfer(item.seller, msg.sender, tokenId);
+        _transfer(owner(), msg.sender, tokenId);
 
-        marketItems[tokenId].isListed = false;
+        delete marketItems[tokenId];
     }
 
-    /// @notice 판매 정보 확인
-    function getListing(uint256 tokenId) public view returns (MarketItem memory) {
-        return marketItems[tokenId];
+    /// @notice NFT 판매 등록 취소
+    function cancelListing(uint256 tokenId) public {
+        MarketItem memory item = marketItems[tokenId];
+
+        require(item.seller == msg.sender, "Only seller can cancel listing");
+
+        delete marketItems[tokenId];
     }
+
+    function _tokenExists(uint256 tokenId) internal view returns (bool) {
+        try this.ownerOf(tokenId) returns (address) {
+            return true;
+        } catch {
+            return false;
+    }
+}
 }

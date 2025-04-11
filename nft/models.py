@@ -1,14 +1,16 @@
 from django.db import models
 
 class Item(models.Model):
-
-    item_id = models.AutoField(primary_key=True)  # 아이템 ID
     token_id = models.IntegerField()  # NFT 토큰 ID
-    item_name = models.CharField(max_length=100)  # 아이템 이름
-    item_value = models.IntegerField(default=0)  # 상점 판매 가치
-    item_icon = models.URLField(upload_to='item_icons/', blank=True, null=True)  # 아이템 아이콘 (이미지 파일)
+    seller = models.CharField(max_length=42)
+    price_klay = models.DecimalField(max_digits=18, decimal_places=6)
+    is_listed = models.BooleanField(default=True)
+    metadata_uri = models.CharField(max_length=255)
 
-    created_at = models.DateTimeField(auto_now_add=True)  # 생성 날짜
-
-    def __str__(self):
-        return self.item_name
+    def to_dict(self):
+        return {
+            "token_id": self.token_id,
+            "seller": self.seller,
+            "price_klay": float(self.price_klay),
+            "metadata_uri": self.metadata_uri
+        }

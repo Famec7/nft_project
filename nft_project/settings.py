@@ -40,7 +40,7 @@ KLIP_RESULT_URL = os.getenv("KLIP_RESULT_URL")
 KAIA_ADDRESS = os.getenv("KAIA_ADDRESS")
 NFT_CONTRACT_ADDRESS = os.getenv("NFT_CONTRACT_ADDRESS")
 
-BAPP_NAME = os.getenv("VRNFT")
+BAPP_NAME = os.getenv("BAPP_NAME")
 
 # Application definition
 
@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'klip_auth'
+    'klip_auth',
+    'nft'
 ]
 
 MIDDLEWARE = [

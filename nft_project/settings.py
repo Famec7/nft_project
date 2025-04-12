@@ -37,8 +37,11 @@ KLIP_PREPARE_URL = os.getenv("KLIP_PREPARE_URL")
 KLIP_REQUEST_URL = os.getenv("KLIP_REQUEST_URL")
 KLIP_RESULT_URL = os.getenv("KLIP_RESULT_URL")
 
-KAIA_ADDRESS = os.getenv("KAIA_ADDRESS")
+ADMIN_ADDRESS = os.getenv("ADMIN_ADDRESS")
+ADMIN_PRIVATE_KEY = os.getenv("ADMIN_PRIVATE_KEY")
 NFT_CONTRACT_ADDRESS = os.getenv("NFT_CONTRACT_ADDRESS")
+
+KLAYTN_RPC_URL = os.getenv("KLAYTN_RPC_URL")
 
 BAPP_NAME = os.getenv("BAPP_NAME")
 
@@ -92,8 +95,12 @@ WSGI_APPLICATION = 'nft_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'nftitemdb',
+        'USER': 'root',
+        'PASSWORD' : os.getenv("DB_PASSWORD"),
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 

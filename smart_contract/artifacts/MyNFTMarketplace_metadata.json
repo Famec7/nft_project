@@ -829,7 +829,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"smart_contract/smart_contract.sol": "MyNFTMarketplace"
+			"nft_project/smart_contract/smart_contract.sol": "MyNFTMarketplace"
 		},
 		"evmVersion": "cancun",
 		"libraries": {},
@@ -1003,7 +1003,7 @@
 				"dweb:/ipfs/QmVUSvooZKEdEdap619tcJjTLcAuH6QBdZqAzWwnAXZAWJ"
 			]
 		},
-		"smart_contract/smart_contract.sol": {
+		"nft_project/smart_contract/smart_contract.sol": {
 			"keccak256": "0x9e60eb5a2935ee515e10787036c4123eb9b2e173c9b8b20926980916d486aee4",
 			"license": "MIT",
 			"urls": [

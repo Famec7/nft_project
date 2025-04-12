@@ -1,153 +1,115 @@
 import json
-import requests
-from django.conf import settings
-from rest_framework.response import Response
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import status, generics
-from rest_framework.views import APIView
-from .models import Item
 from web3 import Web3
+from decimal import Decimal
+from .models import Item
+from django.conf import settings
 
-BAPP_NAME = settings.BAPP_NAME
-KAIA_ADDRESS = settings.KAIA_ADDRESS
-KLIP_PREPARE_URL = settings.KLIP_PREPARE_URL
-KLIP_REQUEST_URL = settings.KLIP_REQUEST_URL
-NFT_CONTRACT_ADDRESS = settings.NFT_CONTRACT_ADDRESS
+# Web3 초기화
+w3 = Web3(Web3.HTTPProvider(settings.KLAYTN_RPC_URL))
 
-# 스마트 컨트랙트 실행
-def execute_contract(txTo, functionJSON, value, params):
-    payload = {
-        "bapp": {"name": BAPP_NAME},
-        "type": "execute_contract",
-        "transaction": {
-            "to": txTo,
-            "value": value,
-            "abi": functionJSON,
-            "params": params,
-        }
-    }
-    
-    headers = {"Content-Type": "application/json"}
-    response = requests.post(KLIP_PREPARE_URL, json=payload, headers=headers)
-    
-    if response.status_code == 200:
-        return response.json()  # 성공 시 Klip 응답 반환
-    else:
-        return {"error": response.text}  # 실패 시 에러 반환
-    
-# NFT 발행 API
+admin_address = Web3.to_checksum_address(settings.ADMIN_ADDRESS)
+admin_private_key = settings.ADMIN_PRIVATE_KEY
+nft_contract_address = Web3.to_checksum_address(settings.NFT_CONTRACT_ADDRESS)
+
+# ABI 로드
+with open("abi.json") as f:
+    nft_abi = json.load(f)
+
+nft_contract = w3.eth.contract(address=nft_contract_address, abi=nft_abi)
+
+# 트랜잭션 서명 및 전송 함수
+def send_transaction(tx):
+    tx.update({
+        "nonce": w3.eth.get_transaction_count(admin_address),
+        "gas": 3000000,
+        "maxFeePerGas": w3.to_wei("25", "gwei"),
+    })
+
+    signed_tx = w3.eth.account.sign_transaction(tx, private_key=admin_private_key)
+    tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+    return w3.to_hex(tx_hash)
+
+# NFT 민팅
 @csrf_exempt
 def mint_nft_api(request):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
-            toAddress = body.get("toAddress")
-            tokenID = body.get("tokenID")
-            uri = body.get("uri")
-            
-            if not toAddress or not tokenID or not uri:
-                return Response({"error": "Missing required parameters"}, status=status.HTTP_400_BAD_REQUEST)
-            
-            result = mint_nft(toAddress, tokenID, uri)
-            return JsonResponse({"success": True, "result": result})
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
-    else:
-        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            to = Web3.to_checksum_address(body["toAddress"])
+            token_id = int(body["tokenID"])
+            uri = body["uri"]
 
-def mint_nft(toAddress, tokenID, uri):
-    functionJSON = json.dumps({
-        "constant": False,
-        "inputs": [
-            {"name": "to", "type": "address"},
-            {"name": "tokenId", "type": "uint256"},
-            {"name": "tokenURI", "type": "string"}
-        ],
-        "name": "mintWithTokenURI",
-        "outputs": [{"name": "", "type": "uint256"}],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    })
-    functionParams = json.dumps([toAddress, tokenID, uri])
-    value = "0"
-    
-    return execute_contract(NFT_CONTRACT_ADDRESS, functionJSON, value, functionParams)
+            tx = nft_contract.functions.mintWithTokenURI(to, token_id, uri).build_transaction({
+                "from": admin_address,
+                "value": 0,
+            })
 
-# NFT 마켓 등록 API
-@csrf_exempt
-def list_nft_api(request):
-    if request.method == 'POST':
-        try:
-            body = json.loads(request.body)
-            token_id = int(body.get("token_id"))
-            price_klay = float(body.get("price_klay"))
-            price_wei = str(Web3.to_wei(price_klay, 'ether'))
-
-            result = list_nft(token_id, price_wei)
+            tx_hash = send_transaction(tx)
             
             item = Item.objects.create(
-                token_id=token_id,
-                seller=KAIA_ADDRESS,
-                price_klay=price_klay,
-                is_listed=True,
-                metadata_uri="https://example.com/metadata/" + str(token_id) + ".json"
-            )
+                    token_id=token_id,
+                    seller=admin_address,
+                    price_klay=0,
+                    metadata_uri=uri
+                )
             item.save()
             
-            return JsonResponse({"success": True, "result": result})
+            return JsonResponse({"success": True, "tx_hash": tx_hash})
+
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)})
 
-def list_nft(token_id, price_wei):
-    functionJSON = json.dumps({
-        "constant": False,
-        "inputs": [
-            {"name": "tokenId", "type": "uint256"},
-            {"name": "price", "type": "uint256"},
-        ],
-        "name": "listItem",
-        "outputs": [],
-        "payable": False,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    })
+# NFT 마켓에 등록
+@csrf_exempt
+def list_nft_api(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            token_id = int(body["tokenID"])
+            price_klay = Decimal(body["price"])
 
-    functionParams = json.dumps([token_id, price_wei])
-    value = "0"
+            price_wei = Web3.to_wei(price_klay, "ether")
 
-    return execute_contract(NFT_CONTRACT_ADDRESS, functionJSON, value, functionParams)
+            # DB에 아이템이 있는지 확인
+            item = Item.objects.get(token_id=token_id)
+            if not item:
+                return JsonResponse({"success": False, "error": "Item not found."})
+            
+            item.price_klay = price_klay
+            item.is_listed = True
+            item.save()
 
-# NFT 구입 API
+            # 스마트 컨트랙트 호출
+            tx = nft_contract.functions.listItem(token_id, int(price_wei), item.metadata_uri).build_transaction({
+                "from": admin_address,
+                "nonce": w3.eth.get_transaction_count(admin_address),
+                "gas": 500000,
+                "maxFeePerGas": w3.to_wei("25", "gwei")
+            })
+
+            tx_hash = send_transaction(tx)
+
+            return JsonResponse({"success": True, "tx_hash": tx_hash})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+# NFT 구매
 @csrf_exempt
 def buy_nft_api(request):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
-            token_id = int(body.get("token_id"))
-            price_klay = float(body.get("price_klay"))
-            price_wei = Web3.to_wei(price_klay, 'ether')
+            token_id = int(body["tokenID"])
+            price_klay = Decimal(body["price"])
+            price_wei = Web3.to_wei(price_klay, "ether")
 
-            result = buy_nft(token_id, price_wei)
-            return JsonResponse({"success": True, "result": result})
+            tx = nft_contract.functions.buy(token_id).build_transaction({
+                "from": admin_address,
+                "value": int(price_wei),
+            })
+
+            tx_hash = send_transaction(tx)
+            return JsonResponse({"success": True, "tx_hash": tx_hash})
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)})
-
-def buy_nft(tokenID, price_wei):
-    functionJSON = json.dumps({
-        "constant": False,
-        "inputs": [
-            {"name": "tokenId", "type": "uint256"}
-        ],
-        "name": "buy",
-        "outputs": [],
-        "payable": True,
-        "stateMutability": "payable",
-        "type": "function"
-    })
-    
-    functionParams = json.dumps([tokenID])
-    value = str(price_wei)
-
-    return execute_contract(NFT_CONTRACT_ADDRESS, functionJSON, value, functionParams)

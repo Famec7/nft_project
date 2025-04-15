@@ -2,6 +2,7 @@ from django.db import models
 
 class Item(models.Model):
     token_id = models.IntegerField()  # NFT 토큰 ID
+    item_id = models.IntegerField()  # 아이템 ID
     seller = models.CharField(max_length=42)
     price_klay = models.DecimalField(max_digits=18, decimal_places=6)
     metadata_uri = models.CharField(max_length=255)

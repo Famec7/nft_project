@@ -223,6 +223,31 @@
 			{
 				"indexed": true,
 				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "uri",
+				"type": "string"
+			}
+		],
+		"name": "Minted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
 				"name": "previousOwner",
 				"type": "address"
 			},
@@ -302,6 +327,19 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
+				"name": "tokenID",
+				"type": "uint256"
+			}
+		],
+		"name": "burn",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
 				"name": "tokenId",
 				"type": "uint256"
 			}
@@ -368,6 +406,19 @@
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "kaiaToken",
+		"outputs": [
+			{
+				"internalType": "contract IERC20",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -383,6 +434,11 @@
 				"internalType": "string",
 				"name": "tokenURI",
 				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
 			}
 		],
 		"name": "listItem",
@@ -420,11 +476,6 @@
 				"internalType": "address",
 				"name": "to",
 				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenID",
-				"type": "uint256"
 			},
 			{
 				"internalType": "string",
@@ -560,6 +611,19 @@
 			}
 		],
 		"name": "setApprovalForAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_kaiaTokenAddress",
+				"type": "address"
+			}
+		],
+		"name": "setKaiaTokenAddress",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"

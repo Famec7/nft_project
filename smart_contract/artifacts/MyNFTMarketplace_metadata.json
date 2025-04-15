@@ -229,6 +229,31 @@
 					{
 						"indexed": true,
 						"internalType": "address",
+						"name": "to",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "uri",
+						"type": "string"
+					}
+				],
+				"name": "Minted",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
 						"name": "previousOwner",
 						"type": "address"
 					},
@@ -308,6 +333,19 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
+						"name": "tokenID",
+						"type": "uint256"
+					}
+				],
+				"name": "burn",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
 						"name": "tokenId",
 						"type": "uint256"
 					}
@@ -374,6 +412,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "kaiaToken",
+				"outputs": [
+					{
+						"internalType": "contract IERC20",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -389,6 +440,11 @@
 						"internalType": "string",
 						"name": "tokenURI",
 						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
 					}
 				],
 				"name": "listItem",
@@ -426,11 +482,6 @@
 						"internalType": "address",
 						"name": "to",
 						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "tokenID",
-						"type": "uint256"
 					},
 					{
 						"internalType": "string",
@@ -566,6 +617,19 @@
 					}
 				],
 				"name": "setApprovalForAll",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_kaiaTokenAddress",
+						"type": "address"
+					}
+				],
+				"name": "setKaiaTokenAddress",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -811,17 +875,23 @@
 		"userdoc": {
 			"kind": "user",
 			"methods": {
+				"burn(uint256)": {
+					"notice": "NFT 삭제"
+				},
 				"buy(uint256)": {
 					"notice": "NFT 구매"
 				},
 				"cancelListing(uint256)": {
 					"notice": "NFT 판매 등록 취소"
 				},
-				"listItem(uint256,uint256,string)": {
+				"listItem(uint256,uint256,string,address)": {
 					"notice": "NFT 마켓에 판매 등록"
 				},
-				"mintWithTokenURI(address,uint256,string)": {
+				"mintWithTokenURI(address,string)": {
 					"notice": "NFT 민팅 (판매는 X)"
+				},
+				"setKaiaTokenAddress(address)": {
+					"notice": "Klip 주소 지정"
 				}
 			},
 			"version": 1
@@ -881,6 +951,14 @@
 			"urls": [
 				"bzz-raw://399594cd8bb0143bc9e55e0f1d071d0d8c850a394fb7a319d50edd55d9ed822b",
 				"dweb:/ipfs/QmbPZzgtT6LEm9CMqWfagQFwETbV1ztpECBB1DtQHrKiRz"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+			"keccak256": "0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://df6f0c459663c9858b6cba2cda1d14a7d05a985bed6d2de72bd8e78c25ee79db",
+				"dweb:/ipfs/QmeTTxZ7qVk9rjEv2R4CpCwdf8UMCcRqDNMvzNxHc3Fnn9"
 			]
 		},
 		"@openzeppelin/contracts/token/ERC721/ERC721.sol": {
@@ -1004,11 +1082,11 @@
 			]
 		},
 		"nft_project/smart_contract/smart_contract.sol": {
-			"keccak256": "0x9e60eb5a2935ee515e10787036c4123eb9b2e173c9b8b20926980916d486aee4",
+			"keccak256": "0x2ecb2ce15b4833fed7eadb79aef9f1100aaa0aea6226f691676d62fb54c73a1f",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://4fcd35f133bfd5185f72f95b27d36f689341ca3069bd241a6d973e11bcdb75e4",
-				"dweb:/ipfs/Qma7bPKm96LjbrdZkHwZKzFq3eP96VLrx4EhUNL1G5jja4"
+				"bzz-raw://2f6bf385127ecc43a7d4b5edb0acb59be44bc499f24b72f0a30228856262a731",
+				"dweb:/ipfs/QmTWQ3T7KTrmsBQihgcA3SP4mZhpRaijEk1HNPhg6eaYmZ"
 			]
 		}
 	},

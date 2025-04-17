@@ -25,6 +25,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: accessing secrets
+      run: |
+        echo "KLIP_PREPARE_URL=${{ secrets.KLIP_PREPARE_URL }}" >> .env
+        echo "KLIP_REQUEST_URL=${{ secrets.KLIP_REQUEST_URL }}" >> .env
+        echo "KLIP_RESULT_URL=${{ secrets.KLIP_RESULT_URL }}" >> .env
+        echo "ADMIN_ADDRESS=${{ secrets.ADMIN_ADDRESS }}" >> .env
+        echo "ADMIN_PRIVATE_KEY=${{ secrets.ADMIN_PRIVATE_KEY }}" >> .env
+        echo "NFT_CONTRACT_ADDRESS=${{ secrets.NFT_CONTRACT_ADDRESS }}" >> .env
+        echo "KLAYTN_RPC_URL=${{ secrets.KLAYTN_RPC_URL }}" >> .env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+        echo "BAPP_NAME=${{ secrets.BAPP_NAME }}" >> .env
     - name: Run Tests
       run: |
         python manage.py test

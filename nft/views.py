@@ -6,7 +6,7 @@ from web3 import Web3
 from decimal import Decimal
 from .models import Item
 from django.conf import settings
-from klip.klip import execute_contract, send_token
+from klip.klip import send_token
 
 # Web3 초기화
 w3 = Web3(Web3.HTTPProvider(settings.KLAYTN_RPC_URL))

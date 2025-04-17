@@ -1,0 +1,24 @@
+name: Django Deploy
+
+on:
+  workflow_run:
+    workflows: ["Django CI"]
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: excuting remote ssh commands
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.PRIVATE_KEY }} 
+        port: 22
+        script: |
+          cd /home/ubuntu/django_zero_to_instagram_devops_youtube
+          git pull
+          sudo systemctl restart uwsgi

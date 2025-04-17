@@ -27,13 +27,14 @@ idna==3.10
 multidict==6.1.0
 parsimonious==0.10.0
 propcache==0.2.0
-psycopg2-binary==2.9.10
+psycopg==3.2.6
+psycopg-binary==3.2.6
 pycryptodome==3.22.0
 pydantic==2.10.6
 pydantic_core==2.27.2
 python-dotenv==1.0.1
 pyunormalize==16.0.0
-pywin32==310
+pywin32==310; platform_system == "Windows"
 regex==2024.11.6
 requests==2.32.3
 rlp==4.1.0

@@ -348,11 +348,16 @@
 						"internalType": "uint256",
 						"name": "tokenId",
 						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "buyer",
+						"type": "address"
 					}
 				],
 				"name": "buy",
 				"outputs": [],
-				"stateMutability": "payable",
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -878,7 +883,7 @@
 				"burn(uint256)": {
 					"notice": "NFT 삭제"
 				},
-				"buy(uint256)": {
+				"buy(uint256,address)": {
 					"notice": "NFT 구매"
 				},
 				"cancelListing(uint256)": {
@@ -1082,11 +1087,11 @@
 			]
 		},
 		"nft_project/smart_contract/smart_contract.sol": {
-			"keccak256": "0x2ecb2ce15b4833fed7eadb79aef9f1100aaa0aea6226f691676d62fb54c73a1f",
+			"keccak256": "0x7713be0d9d7ea0af1d97f4d079388867731a37945ace667bfc4721eee7c82e73",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://2f6bf385127ecc43a7d4b5edb0acb59be44bc499f24b72f0a30228856262a731",
-				"dweb:/ipfs/QmTWQ3T7KTrmsBQihgcA3SP4mZhpRaijEk1HNPhg6eaYmZ"
+				"bzz-raw://fe5c45cb0e197e9a5b88389c1414466a1aa443ffaf512a2d1d615e8c246a972b",
+				"dweb:/ipfs/QmPsPT4zzYycNJZbS2Y9KB1mGbXdv9ynDeCHADmhKjtvK1"
 			]
 		}
 	},

@@ -5,10 +5,11 @@ from django.conf import settings
 
 KLIP_PREPARE_URL = settings.KLIP_PREPARE_URL
 KLIP_REQUEST_URL = settings.KLIP_REQUEST_URL
+KLIP_RESULT_URL = settings.KLIP_RESULT_URL
 
 # Klip API 요청 (request_key 생성)
 @csrf_exempt
-def klip_login_prepare(request):
+def klip_prepare(request):
   if request.method == "POST":
         payload = {
             "bapp": {"name": "VRNFT"},
@@ -23,20 +24,20 @@ def klip_login_prepare(request):
           
   return JsonResponse({"error": "Failed to prepare Klip login"}, status=400)
 
-# Klip 로그인 요청
+# Klip 딥링크 생성
 @csrf_exempt
-def klip_login_request(request, request_key):
+def klip_request(request, request_key):
     if request.method == "GET":
         return JsonResponse({"url": KLIP_REQUEST_URL + request_key})
     
-    return JsonResponse({"error": "Failed to request Klip login"}, status=400)
+    return JsonResponse({"error": "Failed to request Klip login"}, status=400, allow_redirects=True)
 
-# Klip 로그인 결과 확인
+# Klip 결과 확인
 @csrf_exempt
-def klip_login_result(request, request_key):
+def klip_result(request, request_key):
     if request.method == "GET":
         headers = {"Content-Type": "application/json"}
-        response = requests.get(KLIP_REQUEST_URL + request_key, headers=headers)
+        response = requests.get(KLIP_RESULT_URL + request_key, headers=headers)
         
         if response.status_code == 200:
             data = response.json()

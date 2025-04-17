@@ -21,10 +21,13 @@ contract MyNFTMarketplace is ERC721URIStorage, Ownable {
 
     event Minted(address indexed to, uint256 tokenId, string uri);
 
-    constructor(address initialOwner) ERC721("ItemMarket", "Item") Ownable(initialOwner) {}
+    constructor(address initialOwner) ERC721("ItemMarket", "Item") Ownable(initialOwner) {
+        address kaiaTokenAddress = 0x5c74070FDeA071359b86082bd9f9b3dEaafbe32b;
+        setKaiaTokenAddress(kaiaTokenAddress);
+    }
 
     /// @notice Klip 주소 지정
-    function setKaiaTokenAddress(address _kaiaTokenAddress) public onlyOwner {
+    function setKaiaTokenAddress(address _kaiaTokenAddress) public {
         require(_kaiaTokenAddress != address(0), "Invalid address");
         kaiaToken = IERC20(_kaiaTokenAddress);
     }
@@ -36,6 +39,7 @@ contract MyNFTMarketplace is ERC721URIStorage, Ownable {
 
         _mint(to, tokenId);
         _setTokenURI(tokenId, tokenURI);
+
         emit Minted(to, tokenId, tokenURI);
 
         return tokenId;
@@ -60,17 +64,12 @@ contract MyNFTMarketplace is ERC721URIStorage, Ownable {
     }
 
     /// @notice NFT 구매
-    function buy(uint256 tokenId) public payable {
+    function buy(uint256 tokenId, address buyer) public {
         MarketItem memory item = marketItems[tokenId];
 
-        // 토큰 승인 확인
-        uint256 allowance = kaiaToken.allowance(msg.sender, address(this));
-        require(allowance >= item.price, "Insufficient allowance to purchase NFT");
+        _transfer(owner(), buyer, tokenId);
 
-        require(kaiaToken.transferFrom(msg.sender, item.seller, item.price), "Payment failed");
-        _transfer(owner(), msg.sender, tokenId);
-
-        delete marketItems[tokenId];
+        delete item;
     }
 
     /// @notice NFT 판매 등록 취소

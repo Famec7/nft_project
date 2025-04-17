@@ -1,14 +1,12 @@
 import json
+import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from web3 import Web3
 from decimal import Decimal
 from .models import Item
 from django.conf import settings
-from requests import requests
-
-KLIP_PREPARE_URL = settings.KLIP_PREPARE_URL
-BAPP_NAME = settings.BAPP_NAME
+from klip.klip import execute_contract, send_token
 
 # Web3 초기화
 w3 = Web3(Web3.HTTPProvider(settings.KLAYTN_RPC_URL))
@@ -35,27 +33,6 @@ def send_transaction(tx):
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     return w3.to_hex(tx_hash)
 
-# Klip Execute_contract 함수
-def execute_contract(txTo, functionJSON, value, params):
-    payload = {
-        "bapp": {"name": BAPP_NAME},
-        "type": "execute_contract",
-        "transaction": {
-            "to": txTo,
-            "value": value,
-            "abi": functionJSON,
-            "params": params,
-        }
-    }
-    
-    headers = {"Content-Type": "application/json"}
-    response = requests.post(KLIP_PREPARE_URL, json=payload, headers=headers)
-    
-    if response.status_code == 200:
-        return response.json()  # 성공 시 Klip 응답 반환
-    else:
-        return {"error": response.text}  # 실패 시 에러 반환
-
 # NFT 민팅
 @csrf_exempt
 def mint_nft_api(request):
@@ -74,9 +51,17 @@ def mint_nft_api(request):
             })
 
             tx_hash = send_transaction(tx)
-            logs = nft_contract.events.Transfer().processReceipt(w3.eth.wait_for_transaction_receipt(tx_hash))
-            token_id = logs[0]["args"]["tokenId"]
+            tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
             
+            token_id = None  # Initialize token_id with a default value
+            log = tx_receipt.logs[1]
+
+            data = log['data']
+            token_id = int.from_bytes(data[2:], byteorder='big')
+            
+            if token_id is None:  # Handle case where token_id is not assigned
+                return JsonResponse({"success": False, "error": "Minted event not found in transaction logs."})
+                        
             item = Item.objects.create(
                     token_id=token_id,
                     item_id=item_id,
@@ -86,7 +71,7 @@ def mint_nft_api(request):
                 )
             item.save()
             
-            return JsonResponse({"success": True, "tx_hash": tx_hash})
+            return JsonResponse({"success": True, "tx_hash": tx_hash, "item": item.to_dict()})
 
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)})
@@ -127,39 +112,66 @@ def list_nft_api(request):
             return JsonResponse({"success": False, "error": str(e)})
 # NFT 구매
 @csrf_exempt
-def buy_nft_api(request):
+def request_buy_nft_api(request):
     if request.method == "POST":
         try:
             body = json.loads(request.body)
             token_id = int(body["tokenID"])
+            buyer = Web3.to_checksum_address(body["buyerAddress"])
             
             item = Item.objects.get(token_id=token_id)
             if not item or not item.is_listed:
                 return JsonResponse({"success": False, "error": "Item not found or not listed."})
             
-            functionJSON = json.dumps({
-                "constant": False,
-                "inputs": [
-                    {"name": "tokenId", "type": "uint256"}
-                ],
-                "name": "buy",
-                "outputs": [],
-                "payable": False,
-                "stateMutability": "nonpayable",
-                "type": "function"
-            })
-            functionParams = json.dumps([token_id])
-            value = "0"
-            
-            result = execute_contract(nft_contract_address, functionJSON, value, functionParams)
+            result = send_token(buyer, item.seller, str(item.price_klay))
             if "error" in result:
                 return JsonResponse({"success": False, "error": result["error"]})
             else:
-                item.is_listed = False
-                item.save()
-                return JsonResponse({"success": True, "tx_hash": result["result"]})
+                result["token_id"] = token_id
+                result["buyer_address"] = buyer
+                return JsonResponse({"success": True, "result": result})
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)})
+
+@csrf_exempt
+def confirm_buy_nft(request):
+    if request.method == "POST":
+        try:
+            body = json.loads(request.body)
+            request_key = body["requestKey"]
+            result = requests.get(settings.KLIP_RESULT_URL + request_key).json()
+            
+            data = result.get("result")
+            
+            if data.get("status") == "success":
+                token_id = int(body["result"]["token_id"])
+                buyer_address = Web3.to_checksum_address(body["result"]["buyer_address"])
+                
+                tx = buy_nft(token_id, buyer_address)
+                
+                item = Item.objects.get(token_id=token_id)
+                item.is_listed = False
+                item.save()
+
+                return JsonResponse({"success": True, "result": result})
+            else:
+                return JsonResponse({"success": False, "error": "Transaction not completed." + result})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+        
+    return JsonResponse({"success": False, "error": "Invalid request method."})
+    
+def buy_nft(token_id, buyer_address):
+    tx = nft_contract.functions.buy(token_id, buyer_address).build_transaction({
+                "from": admin_address,
+                "nonce": w3.eth.get_transaction_count(admin_address),
+                "gas": 500000,
+                "maxFeePerGas": w3.to_wei("25", "gwei")
+            })
+
+    tx_hash = send_transaction(tx)
+    
+    return tx_hash
 
 # NFT 삭제
 @csrf_exempt
@@ -174,8 +186,6 @@ def burn_nft(request):
             if not item:
                 return JsonResponse({"success": False, "error": "Item not found."})
 
-            item.delete()
-
             # 스마트 컨트랙트 호출
             tx = nft_contract.functions.burn(token_id).build_transaction({
                 "from": admin_address,
@@ -185,6 +195,7 @@ def burn_nft(request):
             })
 
             tx_hash = send_transaction(tx)
+            item.delete()
 
             return JsonResponse({"success": True, "tx_hash": tx_hash})
         except Exception as e:
@@ -195,7 +206,7 @@ def burn_nft(request):
 def get_all_items(request):
     if request.method == 'GET':
         try:
-            items = Item.objects.all()
+            items = Item.objects.filter(is_listed=True)
             item_list = []
             for item in items:
                 item_list.append({
@@ -217,7 +228,7 @@ def get_user_items(request):
         try:
             body = json.loads(request.body)
             user_address = Web3.to_checksum_address(body["userAddress"])
-            items = Item.objects.filter(seller=user_address)
+            items = Item.objects.filter(seller=user_address, is_listed=True)
             item_list = []
             for item in items:
                 item_list.append({

@@ -19,6 +19,6 @@ jobs:
         key: ${{ secrets.PRIVATE_KEY }} 
         port: 22
         script: |
-          cd /home/ubuntu/django_zero_to_instagram_devops_youtube
+          cd /home/ubuntu/nft_project
           git pull
           sudo systemctl restart uwsgi

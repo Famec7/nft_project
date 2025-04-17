@@ -1,10 +1,7 @@
 name: Django Deploy
 
 on:
-  workflow_run:
-    workflows: ["Django CI"]
-    types:
-      - completed
+  push:
     branches: [ "release" ]
 
 jobs:

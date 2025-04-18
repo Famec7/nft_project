@@ -3,9 +3,10 @@ name: Django Deploy
 on:
   workflow_run:
     workflows: ["Django CI"]
+    branches:
+      - release
     types:
       - completed
-    branches: [ "release" ]
 
 jobs:
   build:
@@ -14,6 +15,8 @@ jobs:
     steps:
     - name: excuting remote ssh commands
       uses: appleboy/ssh-action@v0.1.10
+      env:
+          SECRET_KEY: ${{ secrets.PRIVATE_KEY }}
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
@@ -27,4 +30,6 @@ jobs:
           echo "< requirements.txt installed >"
           git pull origin release
           echo "< pulled completed >"
+          echo "{\"SECRET_KEY\": \"$SECRET_KEY\"}" > secrets.json
+          echo "< secrets.json file created >"
           nohup python manage.py runserver 0.0.0.0:8000 &

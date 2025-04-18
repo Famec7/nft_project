@@ -21,6 +21,10 @@ jobs:
         port: 22
         script: |
           cd /home/ubuntu/nft_project
-          git checkout release
+          source venv/bin/activate
+          cd /home/ubuntu/nft_project
+          pip install -r requirements.txt
+          echo "< requirements.txt installed >"
           git pull origin release
-          sudo systemctl restart uwsgi
+          echo "< pulled completed >"
+          nohup python manage.py runserver 0.0.0.0:8000 &

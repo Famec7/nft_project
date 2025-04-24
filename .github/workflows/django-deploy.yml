@@ -28,7 +28,7 @@ jobs:
           cd /home/ubuntu/nft_project
           pip install -r requirements.txt
           echo "< requirements.txt installed >"
-          git pull origin release
+          git pull origin main
           echo "< pulled completed >"
           echo "KLIP_PREPARE_URL=${{ secrets.KLIP_PREPARE_URL }}" >> .env
           echo "KLIP_REQUEST_URL=${{ secrets.KLIP_REQUEST_URL }}" >> .env

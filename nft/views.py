@@ -218,7 +218,7 @@ def get_all_items(request):
                     "seller": item.seller,
                     "price_klay": str(item.price_klay),
                     "metadata_uri": item.metadata_uri,
-                    "is_listed": item.is_listed
+                    "listing_duration": item.listing_duration,
                 })
             return JsonResponse({"success": True, "items": item_list})
         except Exception as e:

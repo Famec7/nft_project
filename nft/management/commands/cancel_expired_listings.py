@@ -50,6 +50,7 @@ class Command(BaseCommand):
                 # DB에서 is_listed 업데이트
                 item.is_listed = False
                 item.price_klay = 0
+                item.listing_duration = None
                 item.save()
 
                 self.stdout.write(f"Canceled listing for token_id: {item.token_id}, tx_hash: {tx_hash}")

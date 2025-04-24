@@ -46,3 +46,4 @@ urllib3==2.2.3
 web3==7.10.0
 websockets==13.1
 yarl==1.15.2
+django_cron-0.6.0

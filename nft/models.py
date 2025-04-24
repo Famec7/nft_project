@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 class Item(models.Model):
     token_id = models.IntegerField()  # NFT 토큰 ID
@@ -7,6 +8,9 @@ class Item(models.Model):
     price_klay = models.DecimalField(max_digits=18, decimal_places=6)
     metadata_uri = models.CharField(max_length=255)
     is_listed = models.BooleanField(default=False)
+    
+    listing_duration = models.DateTimeField(null=True, blank=True)  # 만료 시간 필드 추가
+    
 
     def to_dict(self):
         return {

@@ -7,6 +7,7 @@ from decimal import Decimal
 from .models import Item
 from django.conf import settings
 from klip.klip import send_token
+from datetime import datetime, timedelta
 
 # Web3 초기화
 w3 = Web3(Web3.HTTPProvider(settings.KLAYTN_RPC_URL))
@@ -85,6 +86,7 @@ def list_nft_api(request):
             token_id = int(body["tokenID"])
             price_klay = Decimal(body["price"])
             seller = Web3.to_checksum_address(body["sellerAddress"])
+            listing_duration = int(body["listingDuration"])  # 초 단위로 받음
 
             price_wei = Web3.to_wei(price_klay, "ether")
 
@@ -95,6 +97,7 @@ def list_nft_api(request):
             
             item.price_klay = price_klay
             item.is_listed = True
+            item.listing_duration = datetime.now() + timedelta(seconds=listing_duration)  # 만료 시간 계산
             item.save()
 
             # 스마트 컨트랙트 호출
@@ -237,7 +240,7 @@ def get_user_items(request):
                     "seller": item.seller,
                     "price_klay": str(item.price_klay),
                     "metadata_uri": item.metadata_uri,
-                    "is_listed": item.is_listed
+                    "listing_duration": item.listing_duration,
                 })
             return JsonResponse({"success": True, "items": item_list})
         except Exception as e:

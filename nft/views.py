@@ -69,7 +69,7 @@ def mint_nft_api(request):
                     seller=admin_address,
                     price_klay=0,
                     metadata_uri=uri,
-                    listing_duration = None
+                    listing_duration=datetime.now()  # 기본값 설정
                 )
             item.save()
             

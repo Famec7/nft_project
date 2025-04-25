@@ -69,7 +69,7 @@ def mint_nft_api(request):
                     seller=admin_address,
                     price_klay=0,
                     metadata_uri=uri,
-                    listing_duration=datetime.now()  # 기본값 설정
+                    listing_duration=int(datetime.now().timestamp())
                 )
             item.save()
             
@@ -98,7 +98,7 @@ def list_nft_api(request):
             
             item.price_klay = price_klay
             item.is_listed = True
-            item.listing_duration = datetime.now() + timedelta(seconds=listing_duration)  # 만료 시간 계산
+            item.listing_duration = int((datetime.now() + timedelta(seconds=listing_duration)).timestamp())  # 만료 시간 계산
             item.save()
 
             # 스마트 컨트랙트 호출
@@ -213,7 +213,7 @@ def get_all_items(request):
             items = Item.objects.filter(is_listed=True)
             item_list = []
             for item in items:
-                remaining_time = (item.listing_duration - datetime.now()).total_seconds()
+                remaining_time = item.listing_duration - datetime.now().timestamp()
                 item_list.append({
                     "token_id": item.token_id,
                     "item_id": item.item_id,
@@ -236,7 +236,7 @@ def get_user_items(request):
             items = Item.objects.filter(seller=user_address, is_listed=True)
             item_list = []
             for item in items:
-                remaining_time = (item.listing_duration - datetime.now()).total_seconds()
+                remaining_time = item.listing_duration - datetime.now().timestamp()
                 item_list.append({
                     "token_id": item.token_id,
                     "item_id": item.item_id,

@@ -7,7 +7,6 @@ class Item(models.Model):
     price_klay = models.DecimalField(max_digits=18, decimal_places=6)
     metadata_uri = models.CharField(max_length=255)
     is_listed = models.BooleanField(default=False)
-    
     listing_duration = models.DateTimeField(null=True, blank=True)  # DateTimeField로 정의
 
     def to_dict(self):
@@ -17,5 +16,5 @@ class Item(models.Model):
             "price_klay": float(self.price_klay),
             "metadata_uri": self.metadata_uri,
             "is_listed": self.is_listed,
-            "listing_duration": self.listing_duration.isoformat() if self.listing_duration else None,
+            "listing_duration": self.listing_duration,
         }

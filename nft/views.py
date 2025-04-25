@@ -7,7 +7,7 @@ from decimal import Decimal
 from .models import Item
 from django.conf import settings
 from klip.klip import send_token
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # Web3 초기화
 w3 = Web3(Web3.HTTPProvider(settings.KLAYTN_RPC_URL))
@@ -212,13 +212,14 @@ def get_all_items(request):
             items = Item.objects.filter(is_listed=True)
             item_list = []
             for item in items:
+                remaining_time = (item.listing_duration - datetime.now()).total_seconds()
                 item_list.append({
                     "token_id": item.token_id,
                     "item_id": item.item_id,
                     "seller": item.seller,
                     "price_klay": str(item.price_klay),
                     "metadata_uri": item.metadata_uri,
-                    "listing_duration": item.listing_duration,
+                    "remaining_time": max(0, remaining_time),  # 남은 시간이 음수일 경우 0으로 처리
                 })
             return JsonResponse({"success": True, "items": item_list})
         except Exception as e:
@@ -234,13 +235,14 @@ def get_user_items(request):
             items = Item.objects.filter(seller=user_address, is_listed=True)
             item_list = []
             for item in items:
+                remaining_time = (item.listing_duration - datetime.now()).total_seconds()
                 item_list.append({
                     "token_id": item.token_id,
                     "item_id": item.item_id,
                     "seller": item.seller,
                     "price_klay": str(item.price_klay),
                     "metadata_uri": item.metadata_uri,
-                    "listing_duration": item.listing_duration,
+                    "remaining_time": max(0, remaining_time),  # 남은 시간이 음수일 경우 0으로 처리
                 })
             return JsonResponse({"success": True, "items": item_list})
         except Exception as e:

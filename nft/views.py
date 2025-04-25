@@ -68,7 +68,8 @@ def mint_nft_api(request):
                     item_id=item_id,
                     seller=admin_address,
                     price_klay=0,
-                    metadata_uri=uri
+                    metadata_uri=uri,
+                    listing_duration = None
                 )
             item.save()
             

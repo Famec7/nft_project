@@ -43,6 +43,7 @@ jobs:
           echo "BAPP_NAME=${{ secrets.BAPP_NAME }}" >> .env
           echo "{\"SECRET_KEY\": \"$SECRET_KEY\"}" > secrets.json
           echo "< secrets.json file created >"
+          python manage.py migrate --fake-initial
           python manage.py makemigrations
           python manage.py migrate
           python manage.py runserver 0.0.0.0:8000 &

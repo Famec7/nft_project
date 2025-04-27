@@ -199,7 +199,7 @@ def burn_nft(request):
             })
 
             tx_hash = send_transaction(tx)
-            item.delete()
+            # item.delete()
 
             return JsonResponse({"success": True, "tx_hash": tx_hash})
         except Exception as e:

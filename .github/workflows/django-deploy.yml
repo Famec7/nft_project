@@ -25,7 +25,6 @@ jobs:
         script: |
           cd /home/ubuntu/nft_project
           source venv/bin/activate
-          pkill -f runserver
           cd /home/ubuntu/nft_project
           pip install -r requirements.txt
           echo "< requirements.txt installed >"

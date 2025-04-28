@@ -148,5 +148,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRONJOBS = [
-('0 0 * * *','django.core.management.call_command',['cancel_expired_listings'],{},'>> '+BASE_DIR+'/log/cancel_expired_listings 2>&1'),
+('0 0 * * *','django.core.management.call_command',['cancel_expired_listings'],{},'>> '+'home/ubuntu'+'/log/cancel_expired_listings 2>&1'),
 ]

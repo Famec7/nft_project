@@ -98,7 +98,7 @@ def list_nft_api(request):
             
             item.price_klay = price_klay
             item.is_listed = True
-            item.listing_duration = int((datetime.now() + timedelta(seconds=listing_duration)).timestamp())  # 만료 시간 계산
+            item.listing_duration = (datetime.now() + timedelta(seconds=listing_duration)).timestamp()  # 만료 시간 계산
             item.save()
 
             # 스마트 컨트랙트 호출

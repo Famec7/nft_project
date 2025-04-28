@@ -33,8 +33,8 @@ class Command(BaseCommand):
     help = "Cancel expired NFT listings"
 
     def handle(self, *args, **kwargs):
-        now = datetime.now()
-        expired_items = Item.objects.filter(is_listed=True, listing_duration__lte=now)
+        now = datetime.now().timestamp()
+        expired_items = Item.objects.filter(is_listed=True, listing_duration__lte=now   )
 
         for item in expired_items:
             try:

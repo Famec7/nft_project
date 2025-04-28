@@ -1,10 +1,9 @@
 from django.core.management.base import BaseCommand
 from nft.models import Item
-from datetime import datetime
 from web3 import Web3
 from django.conf import settings
+from datetime import datetime
 import json
-from django.utils import timezone
 
 # Web3 초기화
 w3 = Web3(Web3.HTTPProvider(settings.KLAYTN_RPC_URL))
@@ -33,8 +32,8 @@ def send_transaction(tx):
 class Command(BaseCommand):
     help = "Cancel expired NFT listings"
 
-    def handle(self, *args, **kwargs):
-        now = timezone.localtime(timezone.now())
+    def handle(self, *args, **kwargs):    
+        now = datetime.now()
         expired_items = Item.objects.filter(is_listed=True, listing_duration__lte=now   )
 
         for item in expired_items:

@@ -213,7 +213,7 @@ def get_all_items(request):
             items = Item.objects.filter(is_listed=True)
             item_list = []
             for item in items:
-                remaining_time = item.listing_duration - datetime.now().timestamp()
+                remaining_time = (item.listing_duration - datetime.now()).total_seconds()
                 item_list.append({
                     "token_id": item.token_id,
                     "item_id": item.item_id,
@@ -236,7 +236,7 @@ def get_user_items(request):
             items = Item.objects.filter(seller=user_address, is_listed=True)
             item_list = []
             for item in items:
-                remaining_time = item.listing_duration - datetime.now().timestamp()
+                remaining_time = (item.listing_duration - datetime.now()).total_seconds()
                 item_list.append({
                     "token_id": item.token_id,
                     "item_id": item.item_id,

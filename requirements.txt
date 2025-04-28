@@ -12,6 +12,7 @@ ckzg==2.1.1
 cytoolz==1.0.1
 Django==4.2.20
 django-cron==0.6.0
+django-crontab==0.7.1
 djangorestframework==3.15.2
 eth-account==0.13.6
 eth-hash==0.7.1

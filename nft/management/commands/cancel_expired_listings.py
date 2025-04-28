@@ -12,7 +12,7 @@ admin_private_key = settings.ADMIN_PRIVATE_KEY
 nft_contract_address = Web3.to_checksum_address(settings.NFT_CONTRACT_ADDRESS)
 
 # ABI 로드
-with open("abi.json") as f:
+with open("/home/ubuntu/nft_project/abi.json") as f:
     nft_abi = json.load(f)
 
 nft_contract = w3.eth.contract(address=nft_contract_address, abi=nft_abi)

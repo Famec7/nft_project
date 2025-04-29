@@ -9,6 +9,7 @@ from .models import Item
 from django.conf import settings
 from klip.klip import send_token
 from datetime import datetime, timedelta
+from nft_project.cron import cancel_expired_listings
 
 # Web3 초기화
 w3 = Web3(Web3.HTTPProvider(settings.KLAYTN_RPC_URL))
@@ -212,6 +213,7 @@ def burn_nft(request):
 def get_all_items(request):
     if request.method == 'GET':
         try:
+            cancel_expired_listings()
             items = Item.objects.filter(is_listed=True)
             item_list = []
             for item in items:
@@ -235,6 +237,7 @@ def get_user_items(request):
         try:
             body = json.loads(request.body)
             user_address = Web3.to_checksum_address(body["userAddress"])
+            cancel_expired_listings()
             items = Item.objects.filter(seller=user_address, is_listed=True)
             item_list = []
             for item in items:

@@ -12,6 +12,7 @@ class Item(models.Model):
     def to_dict(self):
         return {
             "token_id": self.token_id,
+            "item_id": self.item_id,
             "seller": self.seller,
             "price_klay": float(self.price_klay),
             "metadata_uri": self.metadata_uri,

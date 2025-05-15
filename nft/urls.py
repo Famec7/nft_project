@@ -8,5 +8,6 @@ urlpatterns = [
     path("confirmBuyNFT/", views.confirm_buy_nft, name="confirm_buy_nft"),
     path("burnNFT/", views.burn_nft, name="burn_nft"),
     path("getAllItems/", views.get_all_items, name="get_all_items"),
-    path("getUserItems/", views.get_user_items, name="get_user_items"),
+    path("getListedUserItem/", views.get_listed_user_item, name="get_listed_user_item"),
+    path("getUserItem/", views.get_user_item, name="get_user_item"),
 ]

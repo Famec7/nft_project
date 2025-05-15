@@ -232,7 +232,7 @@ def get_all_items(request):
         
 # NFT 마켓 특정 유저 정보 조회
 @csrf_exempt
-def get_user_items(request):
+def get_listed_user_item(request):
     if request.method == 'GET':
         try:
             body = json.loads(request.body)
@@ -249,6 +249,28 @@ def get_user_items(request):
                     "price_klay": str(item.price_klay),
                     "metadata_uri": item.metadata_uri,
                     "remaining_time": max(0, remaining_time),  # 남은 시간이 음수일 경우 0으로 처리
+                })
+            return JsonResponse({"success": True, "items": item_list})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+        
+# 유저 아이템 정보 조회
+@csrf_exempt
+def get_user_item(request):
+    if request.method == 'GET':
+        try:
+            body = json.loads(request.body)
+            user_address = Web3.to_checksum_address(body["userAddress"])
+            cancel_expired_listings()
+            items = Item.objects.filter(seller=user_address, is_listed=False)
+            item_list = []
+            for item in items:
+                item_list.append({
+                    "token_id": item.token_id,
+                    "item_id": item.item_id,
+                    "seller": item.seller,
+                    "price_klay": str(item.price_klay),
+                    "metadata_uri": item.metadata_uri,
                 })
             return JsonResponse({"success": True, "items": item_list})
         except Exception as e:

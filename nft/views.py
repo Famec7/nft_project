@@ -69,7 +69,8 @@ def mint_nft_api(request):
             item = Item.objects.create(
                     token_id=token_id,
                     item_id=item_id,
-                    seller=admin_address,
+                    seller=to,
+                    is_listed=False,
                     price_klay=0,
                     metadata_uri=uri,
                     listing_duration=None
@@ -213,8 +214,10 @@ def burn_nft(request):
 def get_all_items(request):
     if request.method == 'GET':
         try:
+            body = json.loads(request.body)
+            user_address = Web3.to_checksum_address(body["userAddress"])
             cancel_expired_listings()
-            items = Item.objects.filter(is_listed=True)
+            items = Item.objects.filter(is_listed=True).exclude(seller=user_address)
             item_list = []
             for item in items:
                 remaining_time = (item.listing_duration - datetime.now()).total_seconds()

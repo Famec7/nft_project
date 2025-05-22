@@ -212,7 +212,7 @@ def burn_nft(request):
 # NFT 마켓 전체 정보 조회
 @csrf_exempt
 def get_all_items(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
         try:
             body = json.loads(request.body)
             user_address = Web3.to_checksum_address(body["userAddress"])
@@ -236,7 +236,7 @@ def get_all_items(request):
 # NFT 마켓 특정 유저 정보 조회
 @csrf_exempt
 def get_listed_user_item(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
         try:
             body = json.loads(request.body)
             user_address = Web3.to_checksum_address(body["userAddress"])
@@ -260,7 +260,7 @@ def get_listed_user_item(request):
 # 유저 아이템 정보 조회
 @csrf_exempt
 def get_user_item(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
         try:
             body = json.loads(request.body)
             user_address = Web3.to_checksum_address(body["userAddress"])

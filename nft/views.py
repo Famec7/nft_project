@@ -189,10 +189,10 @@ def burn_nft(request):
             body = json.loads(request.body)
             token_id = int(body["tokenID"])
 
-            # # DB에서 아이템 삭제
-            # item = Item.objects.get(token_id=token_id)
-            # if not item:
-            #     return JsonResponse({"success": False, "error": "Item not found."})
+            # DB에서 아이템 삭제
+            item = Item.objects.get(token_id=token_id)
+            if not item:
+                return JsonResponse({"success": False, "error": "Item not found."})
 
             # 스마트 컨트랙트 호출
             tx = nft_contract.functions.burn(token_id).build_transaction({

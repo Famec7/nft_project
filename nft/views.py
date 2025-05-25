@@ -159,6 +159,7 @@ def confirm_buy_nft(request):
                 
                 item = Item.objects.get(token_id=token_id)
                 item.is_listed = False
+                item.seller = buyer_address
                 item.save()
 
                 return JsonResponse({"success": True, "result": result})
